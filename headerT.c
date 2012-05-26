@@ -82,15 +82,6 @@ int receive(char *buf,int len) {			//funktionsweise wie sending
 
 //empfängt und speichert studenten auf server
 //bei return wurde der student erfolgreich gespeichert
-int receive_student() {
-struct student student;
-struct group group;
-FILE *datei;
-char n, f, d, id, *liste, *studiengang;
-char buffer[MAX_SIZE];
-int i, gpa;
-int j;
-
 
 void receive_student_name(struct student *s) {
 	int e = receive(buf, MAX_NAME);
@@ -101,23 +92,23 @@ void receive_student_name(struct student *s) {
 	}
 	*/
  }
-//n=student.name
+
 void receive_student_firstname(struct student *s) {
 	int e = receive(buf, MAX_FNAME);
 	strcpy(s->firstname, buf);
 }
-//	f=student.firstname;
+
 
 void receive_student_dateofbirth(struct student *s) {
 	int e = receive(buf, MAX_DAT);
 	strcpy(s->dateofbirth, buf);
 }
-//	d=student.dateofbirth
+
 void receive_student_id struct student *s) {
 	int e = receive(buf, MAX_DAT);
 	s->student_id=atoi(buf);
 }
-//	id=student.student_id;
+
 void receive_student_course_marks (struct student *s) {
 	int e=receive(buf, MAX_SIZE);
 	float gpa;
@@ -239,11 +230,11 @@ return best.student;
 
 //findet den besten studenten aller gruppen
 //gibt diesen aus - muss in der mainfunktion gespeichert werden und dann an die send_topstudents funktion übergeben werden
-struct student get_best_at_all (struct group group1, struct group group2, struct group group 3) {
+struct student get_best_at_all (struct group group1, struct group group2, struct group group3) {
 	float x;
 	float y;
 	float z;
-	struct student overall best=get_best_group_gpa(group 1);
+	struct student overall best=get_best_group_gpa(group1);
 	struct student test1=get_best_group_gpa(group2);
 	struct student test2=get_best_group_gpa(group3);
 	x=test1.gpa;
