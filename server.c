@@ -20,6 +20,11 @@ void sigchld_handler(int s)
         while(wait(NULL) > 0);
 }
 
+int wahr()
+{
+        return 1;
+}
+
 int main(int argc, char *argv[ ])
 {
         /* listen on sock_fd, new connection on new_fd */
