@@ -61,7 +61,7 @@ int sending(const char *buf,int len) {
 	if (x==-1) { //-1 ist rückgabewert bei fehler
 		return 0;
 	}
-	while (x<len) { //bei x<len wurden nicht alle datenn gesendet
+	while (x<len) { //bei x<len wurden nicht alle daten gesendet
 		//neuer sendeversuch ab dem fehler:
 		y=send(sid, buf[x], len-x, 0);
 		x=x+y;
@@ -99,7 +99,7 @@ int receive(const char *buf, int len) { //funktionsweise wie sending
 //dafür muss ein pointer auf einen in der main fkt angelegten studenten übergeben werden gegebenenfalls auch einer auf eine gruppe
 //der verwendete buf ist ebenfalls in der main fkt anzulegen und mit ausreichend speicher zu versehen
 //die receive funktionen für namen und vornamen  bzw für dateofbirth und id sind an sich gleich, wegen der
-//übersicht in der main fkt habe ich aber für jedes receive extra eine fkt zu schreiben statt receive_string
+//übersicht in der main fkt haben wir aber für jedes receive extra eine fkt zu schreiben statt receive_string
 //beispielsweise
 
 void receive_student() {
@@ -111,6 +111,7 @@ void receive_student() {
 	receive_student_dateofbirth(st);
 	receive_student_id(st);
 	receive_student_course_marks(st);
+	recevie_student_program(st);
 	match_to_group(st);
 }
 
@@ -178,6 +179,7 @@ int match_to_group(struct student *st) {
 	char program[MAX_PRO];
 	float gpa;
 	FILE * datei;
+	int j=0;
 
 	strcpy(n,st->name);
 	strcpy(f,st->firstname);
@@ -190,18 +192,32 @@ int match_to_group(struct student *st) {
 		datei = fopen("ITTI.txt","a+");
 		fprintf(datei, "%s, %s, %s, %d, %f\n", n, f, d, id, gpa);
 		fclose (datei);
+		while (strcmp(g_itti.student[j].name,"")!=0) {
+			j++;
+		}
+		g_itti.student[j]=*st;
 		return 0;
 	}
 	else if (strcmp(program,"INFO")==0) {
 		datei = fopen ("INFO.txt","a+");
 		fprintf(datei, "%s, %s, %s, %d, %f\n", n, f, d, id, gpa);
 		fclose (datei);
+		j=0;
+		while (strcmp(g_info.student[j].name,"")!=0) {
+			j++;
+		}
+		g_info.student[j]=*st;
 		return 0;
 	}
 	else if (strcmp(program,"MATH")==0) {
 		datei = fopen ("MATH.txt","a+");
 		fprintf(datei, "%s, %s, %s, %d, %f\n", n, f, d, id, gpa);
 		fclose (datei);
+		j=0;
+		while (strcmp(g_math.student[j].name,"")!=0) {
+			j++;
+		}
+		g_math.student[j]=*st;
 		return 0;
 	}
 	else {
