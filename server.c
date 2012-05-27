@@ -30,6 +30,8 @@ extern int sid_neu;
 // unser general purpose buffer: (general purpose *salutier*)
 extern char buf[MAX_SIZE];
 
+extern struct group g_info, g_itti, g_math;
+
 int receive_command()
 {
 	// erstmal empfangen wir das "Kommando" vom socket:
