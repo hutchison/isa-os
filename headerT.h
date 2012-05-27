@@ -4,8 +4,8 @@
 #include <string.h>
 
 #define MAX_MARK 100	//max Notenanzahl
-#define MAX_FNAME 20	//max l‰nge des vornamens
-#define MAX_NAME 30	//max l‰nge des nachnamens
+#define MAX_FNAME 20	//max l√§nge des vornamens
+#define MAX_NAME 30	//max l√§nge des nachnamens
 #define MAX_SIZE 500
 #define MAX_DAT 10
 #define MAX_PRO 5
