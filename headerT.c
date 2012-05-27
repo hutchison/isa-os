@@ -74,7 +74,7 @@ int sending(const char *buf,int len) {
 //ruft die socketfunktion recv auf
 int receive(const char *buf, int len) { //funktionsweise wie sending
 	int x,y;
-	x=recv(sid, buf, len, 0);
+	x = recv(sid, buf, len, 0);
 
 	if (x==-1) {
 		printf("Die Daten konnten nicht empfangen werden");
@@ -82,8 +82,8 @@ int receive(const char *buf, int len) { //funktionsweise wie sending
 	}
 	while (x<len) {
 		printf("Die Daten wurden nicht vollständig empfangen");
-		y=recv(sid, buf[x], len-x, 0);
-		x=x+y;
+		y = recv(sid, buf[x], len-x, 0);
+		x = x + y;
 
 		if(y==-1) {
 			printf("Die Daten konnten nicht empfangen werden");
