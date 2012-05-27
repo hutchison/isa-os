@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <pwd.h>
 #include "headerT.h"
 
 extern int sid;
@@ -17,6 +18,37 @@ void remove_newline(char * s)
 			s[i] = '\0';
 			return;
 		}
+	}
+}
+
+void auth_user()
+/* Das Protokoll lautet wie folgt:
+ * 1. Client sendet das Zauberwort "auth\n"
+ *		(wird schon in receive_command erledigt)
+ * 2. Client sendet den Benutzernamen
+ * 3. Server überprüft Benutzernamen
+ * 4. Client sendet das Passwort
+ * 5. Server überprüft Passwort
+ * 6. stimmt beides, setzt der Server den god mode :)
+ */ 
+{
+	char admin_name[] = "admin";
+	char admin_pw[] = "ponytime";
+	char user_buf[MAX_USERNAME], pw_buf[_PASSWORD_LEN];
+	int user_ok = 0, pw_ok = 0;
+	if (receive(user_buf, MAX_USERNAME)) { // 2.
+		if (!strcmp(admin_name, user_buf)) { // 3.
+			user_ok = 1;
+		}
+	}
+	if (receive(pw_buf, _PASSWORD_LEN)) { // 4.
+		if (!strcmp(admin_pw, pw_buf)) { // 5.
+			pw_ok = 1;
+		}
+	}
+	if (user_ok && pw_ok) { // 6.
+		god_mode = 1;
+		printf("god mode granted.\n");
 	}
 }
 

@@ -50,6 +50,8 @@ int receive_command()
 			sending(text, strlen(text));
 		} else if (strcmp(buf, "create\n") == 0) {
 			receive_student();
+		} else if (strcmp(buf, "auth\n") == 0) {
+			auth_user();
 		}
 	}
 	return 0;

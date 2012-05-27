@@ -5,13 +5,17 @@
 
 #define MAX_MARK 100	//max Notenanzahl
 #define MAX_FNAME 20	//max länge des vornamens
-#define MAX_NAME 30	//max länge des nachnamens
+#define MAX_NAME 30		//max länge des nachnamens
 #define MAX_SIZE 500
 #define MAX_DAT 10
 #define MAX_PRO 5
 
+#define MAX_USERNAME 10
+
 int sid, sid_neu;
 char buf[MAX_SIZE];
+
+int god_mode;
 
 struct student {
 	char name[MAX_NAME+1];
@@ -50,6 +54,6 @@ void send_topstudents(struct student group1, struct student group2, struct stude
 int match_to_group(struct student *st);
 struct student get_best_group_gpa(struct group group);
 struct student get_best_at_all (struct student student1, struct student student2, struct student student3);
-void send_hello();
+void auth_user();
 
 #endif
