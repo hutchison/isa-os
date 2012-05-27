@@ -99,6 +99,19 @@ int receive(const char *buf, int len) { //funktionsweise wie sending
 //die receive funktionen für namen und vornamen  bzw für dateofbirth und id sind an sich gleich, wegen der
 //übersicht in der main fkt habe ich aber für jedes receive extra eine fkt zu schreiben statt receive_string
 //beispielsweise
+
+void receive_student() {
+	struct student *st;
+	struct group *gr;
+	st=(struct student *)malloc(sizeof(struct student));
+	receive_student_name(st);
+	receive_student_firstname(st);
+	receive_student_dateofbirth(st);
+	receive_student_id(st);
+	receive_student_course_marks(st);
+	match_to_group(st);
+}
+
 void receive_student_name(struct student *s) {
 	int e = receive(buf, MAX_NAME);
 	strcpy(s->name, buf);
@@ -140,11 +153,11 @@ void receive_student_course_marks (struct student *s) {
 	}
 }
 
-void receive_student_program(struct group *g, struct student *s) {
+void receive_student_program(struct student *s) {
 	int j=0;
 	int e = receive(buf, MAX_PRO);
 	strcpy(g->groupname, buf);
-	while (g->student[j].name) {
+	while (strcmp(g->student[j].name, "") == 0) {
 		j++;
 	}
 	g->student[j] = *s;
