@@ -8,6 +8,18 @@ extern int sid_neu;
 
 extern struct group g_info, g_itti, g_math;
 
+void remove_newline(char * s)
+/* entfernt den hintersten Zeilenumbruch */
+{
+	int i;
+	for (i = strlen(s); i > 0; i--) {
+		if (s[i] == '\n') {
+			s[i] = '\0';
+			return;
+		}
+	}
+}
+
 //legt studenten an, Name, Geburtsdatum, StudentID und Noten werden eingegeben
 //bei return ist der Student an den server gesendet
 //sendet den übergebenen namen des studenten an server
@@ -94,60 +106,93 @@ int receive(const char *buf, int len) { //funktionsweise wie sending
 
 void receive_student() {
 	struct student *st;
-	struct group *gr;
 	st=(struct student *)malloc(sizeof(struct student));
+	bzero(buf, MAX_SIZE);
+	char msg[30];
+	strcpy(msg, "Name: "); sending(msg, strlen(msg));
 	receive_student_name(st);
+	strcpy(msg, "Vorname: "); sending(msg, strlen(msg));
 	receive_student_firstname(st);
+	strcpy(msg, "Geburtsdatum: "); sending(msg, strlen(msg));
 	receive_student_dateofbirth(st);
+	strcpy(msg, "ID: "); sending(msg, strlen(msg));
 	receive_student_id(st);
+	strcpy(msg, "Noten: "); sending(msg, strlen(msg));
 	receive_student_course_marks(st);
+	strcpy(msg, "Studiengang: "); sending(msg, strlen(msg));
 	receive_student_program(st);
 	match_to_group(st);
 }
 
 void receive_student_name(struct student *s) {
 	int e = receive(buf, MAX_NAME);
+	remove_newline(buf);
 	strcpy(s->name, buf);
 }
 
 void receive_student_firstname(struct student *s) {
 	int e = receive(buf, MAX_FNAME);
+	remove_newline(buf);
 	strcpy(s->firstname, buf);
 }
 
-
 void receive_student_dateofbirth(struct student *s) {
-	int e = receive(buf, MAX_DAT);
+	int e = receive(buf, MAX_DAT+1);
+	remove_newline(buf);
 	strcpy(s->dateofbirth, buf);
 }
 
 void receive_student_id(struct student *s) {
 	int e = receive(buf, MAX_DAT);
+	remove_newline(buf);
 	s->student_id=atoi(buf);
 }
 
 void receive_student_course_marks (struct student *s) {
 	int e = receive(buf, MAX_SIZE);
+	remove_newline(buf);
 	float gpa=0;
 	if (buf[0]!='\0') {
-		s->course_marks[0]=atoi(buf[0]);
-		gpa=gpa+s->course_marks[0];
-
-		int i;
-		for(i=1; buf[i*3-1]!='\0', i<=MAX_SIZE; i++) {
-			s->course_marks[i]=atoi(buf[i*3]);
-			gpa=gpa+s->course_marks[i];
+		int i=0,	// Position im course_marks array
+			j=0;	// Position im Buffer
+		while (j < strlen(buf)) {
+			// atoi ignoriert alle whitespaces am anfang und liefert uns
+			// die erste gefundene zahl im string:
+			s->course_marks[i++] = atoi(buf);
+			// diese gefundene zahl wird jetzt durch leerzeichen
+			// überschrieben
+			// (bitte oh bitte benutzer: halte dich an das format!)
+			for (; j < 3*i-1; j++) {
+				buf[j] = ' ';
+			}
 		}
-		gpa=(gpa/i)/10;
-		s->gpa=gpa; //nachkommastellen evtl noch verändern - jetzt ist es ein float mit xx nachkommastellen
+
+		// alle noten aufsummieren (aber nur solange noch noten
+		// vorhanden sind)
+		// get it?
+		for (i = 0; i < MAX_MARK; i++) {
+			gpa += s->course_marks[i];
+		}
+
+		// anzahl elemente in s->course_marks[] bestimmen
+		// es wird eins zu viel bestimmt, aber das stört uns nur einmal
+		// und kommt uns zweimal zu gute
+		i = 0;
+		while (s->course_marks[i++]) { }
+		// und den durschschnitt ausrechnen:
+		s->gpa = (gpa/(i-1))/10;
+
+		// das ende der Notenliste wird durch -1 markiert
+		// (eigentlich könnte es jede negative zahl sein)
 		if (i<MAX_MARK) {
-			s->course_marks[i]=-1;
+			s->course_marks[i] = -1;
 		}
 	}
 }
 
 void receive_student_program(struct student *s) {
 	int e = receive(buf, MAX_PRO);
+	remove_newline(buf);
 	strcpy(s->program, buf);
 }
 
@@ -156,61 +201,58 @@ void receive_student_program(struct student *s) {
 //bei return 0 wurde der student in die zugehörige gruppendatei gelesen
 //bei return 1 gab es keine passende gruppe (wir haben ja nur 3: ITTI, INFO, MATH)
 int match_to_group(struct student *st) {
-	char n[MAX_NAME];
-	char f[MAX_FNAME];
-	char d[MAX_DAT];
-	int id;
-	char program[MAX_PRO];
-	float gpa;
 	FILE * datei;
 	int j=0;
 
-	strcpy(n,st->name);
-	strcpy(f,st->firstname);
-	strcpy(d,st->dateofbirth);
-	id=st->student_id;
-	gpa=st->gpa;
-	strcpy(program,st->program);
-
-	if (strcmp(program,"ITTI")==0){
+	if (strcmp(st->program,"ITTI") == 0){
 		datei = fopen("ITTI.txt","a+");
-		fprintf(datei, "%s, %s, %s, %d, %f\n", n, f, d, id, gpa);
-		fclose (datei);
-		while (strcmp(g_itti.student[j].name,"")!=0) {
-			j++;
-		}
-		g_itti.student[j]=*st;
+		fprintf(datei, "%s, %s, %s, %d, %f\n",
+				st->name,
+				st->firstname,
+				st->dateofbirth,
+				st->student_id,
+				st->gpa
+			   );
+		fclose(datei);
+		while (strcmp(g_itti.student[j].name,"") != 0) { j++; }
+		g_itti.student[j] = *st;
 		return 0;
 	}
-	else if (strcmp(program,"INFO")==0) {
-		datei = fopen ("INFO.txt","a+");
-		fprintf(datei, "%s, %s, %s, %d, %f\n", n, f, d, id, gpa);
-		fclose (datei);
-		j=0;
-		while (strcmp(g_info.student[j].name,"")!=0) {
-			j++;
-		}
-		g_info.student[j]=*st;
+	else if (strcmp(st->program,"INFO") == 0) {
+		datei = fopen("INFO.txt","a+");
+		fprintf(datei, "%s, %s, %s, %d, %f\n",
+				st->name,
+				st->firstname,
+				st->dateofbirth,
+				st->student_id,
+				st->gpa
+			   );
+		fclose(datei);
+		while (strcmp(g_info.student[j].name,"") != 0) { j++; }
+		g_info.student[j] = *st;
 		return 0;
 	}
-	else if (strcmp(program,"MATH")==0) {
+	else if (strcmp(st->program,"MATH") == 0) {
 		datei = fopen ("MATH.txt","a+");
-		fprintf(datei, "%s, %s, %s, %d, %f\n", n, f, d, id, gpa);
-		fclose (datei);
-		j=0;
-		while (strcmp(g_math.student[j].name,"")!=0) {
-			j++;
-		}
-		g_math.student[j]=*st;
+		fprintf(datei, "%s, %s, %s, %d, %f\n",
+				st->name,
+				st->firstname,
+				st->dateofbirth,
+				st->student_id,
+				st->gpa
+			   );
+		fclose(datei);
+		while (strcmp(g_math.student[j].name,"") != 0) { j++; }
+		g_math.student[j] = *st;
 		return 0;
-	}
-	else {
+	} else {
 		return 1;
 	}
 }
 
 //clientfunktion, sendet anfrage nach topstudenten an server
-//ACHTUNG: in der main fuktion muss wirklich "anfrage" gesendet werden als char
+//ACHTUNG: in der main fuktion muss wirklich "anfrage" gesendet werden
+//als char
 void request_top() {
 	sending("anfrage", 8);
 	return;
