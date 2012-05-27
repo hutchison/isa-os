@@ -1,4 +1,5 @@
-
+#include <stdio.h>
+#include "headerT.h"
 
 
 //legt studenten an, Name, Geburtsdatum, StudentID und Noten werden eingegeben
@@ -10,28 +11,28 @@ void send_student_name(char *name){
 	sending(name, len);
 }
 void send_student_firstname(char *firstname){
-	len=strlen(firstname)+1;
+	int len=strlen(firstname)+1;
 	sending(firstname, len);
 }
 void send_student_dateofbirth(char *dateofbirth){
-	len=strlen(dateofbirth)+1;
+	int len=strlen(dateofbirth)+1;
 	sending(dateofbirth, len);
 }
 void send_student_id(int student_id){
 	char st_id[15];
-	len=sprintf(st_id, "%d", student_id)+1;
+	int len=sprintf(st_id, "%d", student_id)+1;
 	sending(st_id, len);
 }
-void send_student_course_marks(int course_marks[]) {
-	char all_marks[300];					//100 noten max in einem studiengang möglich, gespeichert als zahl aus zwei ziffern, leerzeichen dazwischen
+void send_student_course_marks(int c_ms[]) {
+	char all_marks[300]; //100 noten max in einem studiengang möglich, gespeichert als zahl aus zwei ziffern, leerzeichen dazwischen
 	int j=0;
-	while (c_ms[j]<0 && j<MAX_MARK) {		//ende der notenliste durch negative zahl
+	while (c_ms[j]>0 && j<MAX_MARK) { //ende der notenliste durch negative zahl
 		sprintf(all_marks[j*3], "%d", c_ms[j]);	//die schleife speichert die liste der noten in einem char
 		all_marks[(j+1) * 3 - 1] = ' ';
 		j++;
 	}
 	all_marks[j*3-1]= '\0';
-	len=strlen(all_marks)+1; 	
+	int len=strlen(all_marks)+1; 	
 	sending(c_ms, len);
 }
 //sendet Daten zwischen client und server
@@ -59,7 +60,7 @@ int sending(const char *buf,int len) {
 //empfängt Daten auf server bzw client
 //die zu empfangenden daten sind im *buf
 //ruft die socketfunktion recv auf
-int receive(char *buf,int len) {			//funktionsweise wie sending
+int receive(const char *buf, int len) { //funktionsweise wie sending
 	int x,y;
 	x=recv(sid, buf, len, 0);
 
@@ -104,28 +105,25 @@ void receive_student_dateofbirth(struct student *s) {
 	strcpy(s->dateofbirth, buf);
 }
 
-void receive_student_id struct student *s) {
+void receive_student_id(struct student *s) {
 	int e = receive(buf, MAX_DAT);
 	s->student_id=atoi(buf);
 }
 
 void receive_student_course_marks (struct student *s) {
-	int e=receive(buf, MAX_SIZE);
+	int e = receive(buf, MAX_SIZE);
 	float gpa;
 	if (buf[0]!='\0') {
+		s->course_marks[0]=atoi(buf[0]);
+		gpa=gpa+s->course_marks[0];
 
-		for (i==0) {
-			s->course_marks[i]=atoi(buffer[i*3]);
-			gpa=gpa+s->course_marks[i];
-			i++;
-		}
-
-		for(i=1;buf[i*3-1]!='\0', i<=MAX_SIZE; i++) {
+		int i;
+		for(i=1; buf[i*3-1]!='\0', i<=MAX_SIZE; i++) {
 			s->course_marks[i]=atoi(buf[i*3]);
 			gpa=gpa+s->course_marks[i];
 		}
-		gpa=(gpa/i)/10;	
-		s->gpa=gpa;		//nachkommastellen evtl noch verändern - jetzt ist es ein float mit xx nachkommastellen
+		gpa=(gpa/i)/10;
+		s->gpa=gpa; //nachkommastellen evtl noch verändern - jetzt ist es ein float mit xx nachkommastellen
 		if (i<MAX_MARK) {
 			s->course_marks[i]=-1;
 		}
@@ -136,10 +134,10 @@ void receive_student_program(struct group *g, struct student *s) {
 	int j=0;
 	int e = receive(buf, MAX_PRO);
 	strcpy(g->groupname, buf);
-	while (g->student[j]!='\0') {
+	while (g->student[j].name) {
 		j++;
 	}
-	g->student[j]=s;
+	g->student[j] = *s;
 	strcpy(s->program,g->groupname);
 }
 
@@ -149,42 +147,43 @@ void receive_student_program(struct group *g, struct student *s) {
 //bei return 0 wurde der student in die zugehörige gruppendatei gelesen
 //bei return 1 gab es keine passende gruppe
 int match_to_group(struct student *st) {
-	char n[MAX_NAME]; f, d, id, liste;
+	char n[MAX_NAME];
 	char f[MAX_FNAME];
 	char d[MAX_DAT];
 	int id;
 	char program[MAX_PRO];
 	float gpa;
+	FILE * datei;
 
-	n=st->name;
-	f=st->firstname;
-	d=st->dateofbirth;
+	strcpy(n,st->name);
+	strcpy(f,st->firstname);
+	strcpy(d,st->dateofbirth);
 	id=st->student_id;
 	gpa=st->gpa;
-	studiengang=st->program;
+	strcpy(program,st->program);
 
-		if (strcmp(studiengang,"ITTI")==0){
-			datei = fopen ("ITTI.txt","a+");
-			fprintf(datei, "%s, %s, %s, %d, %f\n", n, f, d, id, gpa);
-			fclose (datei);
-			return 0;
-		}
-		else if (strcmp(studiengang,"INFO")==0) {
-			datei = fopen ("INFO.txt","a+");
-			fprintf(datei, "%s, %s, %s, %d, %f\n", n, f, d, id, gpa);
-			fclose (datei);
-			return 0;
-		}
-		else if (strcmp(studiengang,"MATH")==0) {
-			datei = fopen ("MATH.txt","a+");
-			fprintf(datei, "%s, %s, %s, %d, %f\n", n, f, d, id, gpa);
-			fclose (datei);
-			return 0;
-		}
-		else {
-			return 1;
-		}
-}}
+	if (strcmp(program,"ITTI")==0){
+		datei = fopen("ITTI.txt","a+");
+		fprintf(datei, "%s, %s, %s, %d, %f\n", n, f, d, id, gpa);
+		fclose (datei);
+		return 0;
+	}
+	else if (strcmp(program,"INFO")==0) {
+		datei = fopen ("INFO.txt","a+");
+		fprintf(datei, "%s, %s, %s, %d, %f\n", n, f, d, id, gpa);
+		fclose (datei);
+		return 0;
+	}
+	else if (strcmp(program,"MATH")==0) {
+		datei = fopen ("MATH.txt","a+");
+		fprintf(datei, "%s, %s, %s, %d, %f\n", n, f, d, id, gpa);
+		fclose (datei);
+		return 0;
+	}
+	else {
+		return 1;
+	}
+}
 
 //sendet anfrage nach topstudenten an server
 //ACHTUNG: in der main fuktion muss wirklich "anfrage" gesendet werden als char
@@ -198,7 +197,7 @@ void request_top(char *anfrage) {
 void receive_request_top() {
 	char anfrage[MAX_SIZE];
 	receive(anfrage,MAX_SIZE);
-	if (anfrage='anfrage') {
+	if (strcmp(anfrage, "anfrage")) {
 		send_topstudents();
 	}
 
