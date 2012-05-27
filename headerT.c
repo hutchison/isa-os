@@ -3,29 +3,34 @@
 
 //legt studenten an, Name, Geburtsdatum, StudentID und Noten werden eingegeben
 //bei return ist der Student an den server gesendet
-
-void send_student_name(char *name){
+//sendet den übergebenen namen des studenten an server
+//im main programm muss dann gleich die receive_student_name funktion aufgerufen werden
+void send_student_name(char *name) {
 
 	int len=strlen(name)+1;
 	sending(name, len);
 }
-void send_student_firstname(char *firstname){
+//sendet den übergebenen vornamen des studenten an den server - zugehörige receive fkt aufrufen
+void send_student_firstname(char *firstname) {
 	len=strlen(firstname)+1;
 	sending(firstname, len);
 }
-void send_student_dateofbirth(char *dateofbirth){
+//sendet übergebenes gebdatum an server - zugehörige receive fkt aufrufen
+void send_student_dateofbirth(char *dateofbirth) {
 	len=strlen(dateofbirth)+1;
 	sending(dateofbirth, len);
 }
-void send_student_id(int student_id){
+//sendet übergebene id an server - zugehörige receive fkt aufrufen
+void send_student_id(int student_id) {
 	char st_id[15];
 	len=sprintf(st_id, "%d", student_id)+1;
 	sending(st_id, len);
 }
-void send_student_course_marks(int course_marks[]) {
+//sendet die liste der noten an server - zugehörige receive fkt aufrufen
+void send_student_course_marks(int c_ms[]) {
 	char all_marks[300];					//100 noten max in einem studiengang möglich, gespeichert als zahl aus zwei ziffern, leerzeichen dazwischen
 	int j=0;
-	while (c_ms[j]<0 && j<MAX_MARK) {		//ende der notenliste durch negative zahl
+	while (c_ms[j]>0 && j<MAX_MARK) {		//ende der notenliste durch negative zahl
 		sprintf(all_marks[j*3], "%d", c_ms[j]);	//die schleife speichert die liste der noten in einem char
 		all_marks[(j+1) * 3 - 1] = ' ';
 		j++;
@@ -59,7 +64,8 @@ int sending(const char *buf,int len) {
 //empfängt Daten auf server bzw client
 //die zu empfangenden daten sind im *buf
 //ruft die socketfunktion recv auf
-int receive(char *buf,int len) {			//funktionsweise wie sending
+//funktionsweise wie sending
+int receive(char *buf,int len) {			
 	int x,y;
 	x=recv(sid, buf, len, 0);
 
@@ -73,25 +79,23 @@ int receive(char *buf,int len) {			//funktionsweise wie sending
 		x=x+y;
 
 		if(y==-1) {
-			printf("Es ist ein Fehler aufgetreten");
+			printf("Die Daten konnten nicht empfangen werden");
 			return y;
 		}
 	}
 	return 1;
 }
 
-//empfängt und speichert studenten auf server
-//bei return wurde der student erfolgreich gespeichert
-
+//es folgen die zugehörigen receive funktionen zu den gesendeten daten
+//dafür muss ein pointer auf einen in der main fkt angelegten studenten übergeben werden gegebenenfalls auch einer auf eine gruppe
+//der verwendete buf ist ebenfalls in der main fkt anzulegen und mit ausreichend speicher zu versehen
+//die receive funktionen für namen und vornamen  bzw für dateofbirth und id sind an sich gleich, wegen der
+//übersicht in der main fkt habe ich aber für jedes receive extra eine fkt zu schreiben statt receive_string
+//beispielsweise
 void receive_student_name(struct student *s) {
 	int e = receive(buf, MAX_NAME);
 	strcpy(s->name, buf);
-	/*	
-	for(i=0; i!='\0', i<=MAX_NAME;i++) {
-		s.name[i]=buf[i];
-	}
-	*/
- }
+}
 
 void receive_student_firstname(struct student *s) {
 	int e = receive(buf, MAX_FNAME);
@@ -111,7 +115,7 @@ void receive_student_id struct student *s) {
 
 void receive_student_course_marks (struct student *s) {
 	int e=receive(buf, MAX_SIZE);
-	float gpa;
+	float gpa=0;
 	if (buf[0]!='\0') {
 
 		for (i==0) {
@@ -120,7 +124,7 @@ void receive_student_course_marks (struct student *s) {
 			i++;
 		}
 
-		for(i=1;buf[i*3-1]!='\0', i<=MAX_SIZE; i++) {
+		for(i=1;buf[i*3-1]!='\0'; i<=MAX_SIZE; i++) {
 			s->course_marks[i]=atoi(buf[i*3]);
 			gpa=gpa+s->course_marks[i];
 		}
@@ -147,9 +151,9 @@ void receive_student_program(struct group *g, struct student *s) {
 //ordnet den übermittelten Studenten einer gruppe zu
 //eingegeben wird der aktuelle student - muss in der main funktion direkt nach dem receive der ganzen daten erfolgen
 //bei return 0 wurde der student in die zugehörige gruppendatei gelesen
-//bei return 1 gab es keine passende gruppe
+//bei return 1 gab es keine passende gruppe (wir haben ja nur 3: ITTI, INFO, MATH)
 int match_to_group(struct student *st) {
-	char n[MAX_NAME]; f, d, id, liste;
+	char n[MAX_NAME];
 	char f[MAX_FNAME];
 	char d[MAX_DAT];
 	int id;
@@ -163,7 +167,7 @@ int match_to_group(struct student *st) {
 	gpa=st->gpa;
 	studiengang=st->program;
 
-		if (strcmp(studiengang,"ITTI")==0){
+		if (strcmp(studiengang,"ITTI")==0) {
 			datei = fopen ("ITTI.txt","a+");
 			fprintf(datei, "%s, %s, %s, %d, %f\n", n, f, d, id, gpa);
 			fclose (datei);
@@ -186,20 +190,28 @@ int match_to_group(struct student *st) {
 		}
 }}
 
-//sendet anfrage nach topstudenten an server
+//clientfunktion, sendet anfrage nach topstudenten an server
 //ACHTUNG: in der main fuktion muss wirklich "anfrage" gesendet werden als char
-void request_top(char *anfrage) {
-	sending(anfrage, 8);
+void request_top() {
+	sending("anfrage", 8);
 	return;
 }
 
 //empfängt anfrage nach topstudenten auf dem server
 //ACHTUNG: in der main funktion muss wirklich "anfrage" gesendet werden als char
-void receive_request_top() {
+void work_request_top() {
 	char anfrage[MAX_SIZE];
 	receive(anfrage,MAX_SIZE);
-	if (anfrage='anfrage') {
-		send_topstudents();
+	if (strcmp(anfrage,"anfrage")==0) {
+		struct student s1;
+		struct student s2;
+		struct student s3;
+		struct student best;
+		s1=get_best_group_gpa(gruppe1);
+		s2=get_best_group_gpa(gruppe2);
+		s3=get_best_group_gpa(gruppe3);
+		best=get_best_at_all(s1, s2, s3);
+		send_topstudents(s1);
 	}
 
 }
@@ -225,18 +237,18 @@ struct student get_best_group_gpa (struct group group) {
 		}
 
 	}
-return best.student;
+return best_student;
 }
 
 //findet den besten studenten aller gruppen
 //gibt diesen aus - muss in der mainfunktion gespeichert werden und dann an die send_topstudents funktion übergeben werden
-struct student get_best_at_all (struct group group1, struct group group2, struct group group3) {
+struct student get_best_at_all (struct student st1, struct student st2, struct student st3) {
 	float x;
 	float y;
 	float z;
-	struct student overall best=get_best_group_gpa(group1);
-	struct student test1=get_best_group_gpa(group2);
-	struct student test2=get_best_group_gpa(group3);
+	struct student overall_best=st1;
+	struct student test1=st2;
+	struct student test2=st3;
 	x=test1.gpa;
 	y=overall_best.gpa;
 	z=test2.gpa;
