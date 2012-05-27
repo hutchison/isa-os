@@ -206,7 +206,7 @@ int match_to_group(struct student *st) {
 
 	if (strcmp(st->program,"ITTI") == 0){
 		datei = fopen("ITTI.txt","a+");
-		fprintf(datei, "%s, %s, %s, %d, %f\n",
+		fprintf(datei, "%s %s %s %d %f\n",
 				st->name,
 				st->firstname,
 				st->dateofbirth,
@@ -220,7 +220,7 @@ int match_to_group(struct student *st) {
 	}
 	else if (strcmp(st->program,"INFO") == 0) {
 		datei = fopen("INFO.txt","a+");
-		fprintf(datei, "%s, %s, %s, %d, %f\n",
+		fprintf(datei, "%s %s %s %d %f\n",
 				st->name,
 				st->firstname,
 				st->dateofbirth,
@@ -234,7 +234,7 @@ int match_to_group(struct student *st) {
 	}
 	else if (strcmp(st->program,"MATH") == 0) {
 		datei = fopen ("MATH.txt","a+");
-		fprintf(datei, "%s, %s, %s, %d, %f\n",
+		fprintf(datei, "%s %s %s %d %f\n",
 				st->name,
 				st->firstname,
 				st->dateofbirth,

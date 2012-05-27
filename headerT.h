@@ -48,7 +48,7 @@ void request_top();
 void receive_request_top();
 void send_topstudents(struct student group1, struct student group2, struct student group3, struct student at_all);
 int match_to_group(struct student *st);
-//struct student get_best_group_gpa (struct group group);
+struct student get_best_group_gpa(struct group group);
 struct student get_best_at_all (struct student student1, struct student student2, struct student student3);
 void send_hello();
 
