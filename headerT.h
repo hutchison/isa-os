@@ -43,7 +43,7 @@ void receive_student_firstname(struct student *s);
 void receive_student_dateofbirth(struct student *s);
 void receive_student_id(struct student *s);
 void receive_student_course_marks (struct student *s);
-void receive_student_program(struct group *g, struct student *s);
+//void receive_student_program(struct student *s);
 void request_top();
 void receive_request_top();
 void send_topstudents(struct student group1, struct student group2, struct student group3, struct student at_all);
