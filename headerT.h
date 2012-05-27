@@ -3,9 +3,9 @@
 
 #include <string.h>
 
-#define MAX_MARK 100			//max Notenanzahl
-#define MAX_FNAME 20			//max länge des vornamens
-#define MAX_NAME 30			//max länge des nachnamens
+#define MAX_MARK 100	//max Notenanzahl
+#define MAX_FNAME 20	//max länge des vornamens
+#define MAX_NAME 30	//max länge des nachnamens
 #define MAX_SIZE 500
 #define MAX_DAT 10
 #define MAX_PRO 5
@@ -29,8 +29,10 @@ struct group {
 	struct group *group;
 };
 
-int sending(const char *buf,int len);	//funktion zum senden der daten zwischen server und client
-int receive(const char *buf,int len);	//funktion zum empfangen von daten zwischen server und client
+//funktion zum senden der daten zwischen server und client:
+int sending(const char *buf,int len);
+//funktion zum empfangen von daten zwischen server und client:
+int receive(const char *buf,int len);
 void send_student_name(char *name);
 void send_student_firstname(char *firstname);
 void send_student_dateofbirth(char *dateofbirth);
@@ -42,11 +44,11 @@ void receive_student_dateofbirth(struct student *s);
 void receive_student_id(struct student *s);
 void receive_student_course_marks (struct student *s);
 void receive_student_program(struct group *g, struct student *s);
-void request_top(char *anfrage);
+void request_top();
 void receive_request_top();
 void send_topstudents(struct student group1, struct student group2, struct student group3, struct student at_all);
 int match_to_group(struct student *st);
-struct student get_best_group_gpa (struct group group);
-struct student get_best_at_all (struct group group1, struct group group2, struct group group3);
+//struct student get_best_group_gpa (struct group group);
+struct student get_best_at_all (struct student student1, struct student student2, struct student student3);
 
 #endif

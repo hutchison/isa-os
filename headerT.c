@@ -2,6 +2,8 @@
 #include <string.h>
 #include "headerT.h"
 
+extern int sid;
+
 //legt studenten an, Name, Geburtsdatum, StudentID und Noten werden eingegeben
 //bei return ist der Student an den server gesendet
 //sendet den übergebenen namen des studenten an server
@@ -45,18 +47,18 @@ void send_student_course_marks(int c_ms[]) {
 //bei return 0 sind die Daten nicht korrekt gesendet worden, bei return 1 wurden sie gesendet
 int sending(const char *buf,int len) {
 	int x,y;
-	x=send(sid, buf, len, 0);		//send gibt die menge der gesendeten daten zurück
-	if (x==-1) {					//-1 ist rückgabewert bei fehler
+	//send gibt die menge der gesendeten daten zurück:
+	x = send(sid, buf, len, 0);
+	if (x==-1) { //-1 ist rückgabewert bei fehler
 		return 0;
 	}
-	while (x<len) {					//bei x<len wurden nicht alle datenn gesendet
-									//neuer sendeversuch ab dem fehler
+	while (x<len) { //bei x<len wurden nicht alle datenn gesendet
+		//neuer sendeversuch ab dem fehler:
 		y=send(sid, buf[x], len-x, 0);
 		x=x+y;
-
-		if (y==-1) {				//erneutes testen auf fehler
-		return 0;
-		}	
+		if (y==-1) { //erneutes testen auf fehler
+			return 0;
+		}
 	}
 	return 1;
 }
@@ -119,7 +121,7 @@ void receive_student_course_marks (struct student *s) {
 		gpa=gpa+s->course_marks[0];
 
 		int i;
-		for(i=1;buf[i*3-1]!='\0'; i<=MAX_SIZE; i++) {
+		for(i=1; buf[i*3-1]!='\0', i<=MAX_SIZE; i++) {
 			s->course_marks[i]=atoi(buf[i*3]);
 			gpa=gpa+s->course_marks[i];
 		}
@@ -194,6 +196,7 @@ void request_top() {
 
 //empfängt anfrage nach topstudenten auf dem server
 //ACHTUNG: in der main funktion muss wirklich "anfrage" gesendet werden als char
+/*
 void work_request_top() {
 	char anfrage[MAX_SIZE];
 	receive(anfrage,MAX_SIZE);
@@ -208,19 +211,19 @@ void work_request_top() {
 		best=get_best_at_all(s1, s2, s3);
 		send_topstudents(s1);
 	}
-
 }
+*/
 
 //sucht den besten einer gruppe raus
 //muss in der mainfunktion gespeichert werden und dann an die send_topstudents funktion übergeben werden
-struct student get_best_group_gpa (struct group group) {
+struct student get_best_group_gpa(struct group group) {
 	int k;
 	float x;
 	float best_gpa=10;
 	struct student best_student;
 	int j=0;
 
-	while(group.student[j]!='\0') {
+	while(group.student[j].name) {
 		k=j;
 		j++;
 	}
@@ -230,14 +233,13 @@ struct student get_best_group_gpa (struct group group) {
 			best_gpa=x;
 			best_student=group.student[j];
 		}
-
 	}
-return best_student;
+	return best_student;
 }
 
 //findet den besten studenten aller gruppen
 //gibt diesen aus - muss in der mainfunktion gespeichert werden und dann an die send_topstudents funktion übergeben werden
-struct student get_best_at_all (struct student st1, struct student st2, struct student st3) {
+struct student get_best_at_all(struct student st1, struct student st2, struct student st3) {
 	float x;
 	float y;
 	float z;
@@ -254,7 +256,7 @@ struct student get_best_at_all (struct student st1, struct student st2, struct s
 		overall_best=test2;
 	}
 	return overall_best;
-}}
+}
 
 //sendet topstudenten und den gesamtbesten an client
 void send_topstudents(struct student group1, struct student group2, struct student group3, struct student at_all) {
@@ -262,6 +264,7 @@ void send_topstudents(struct student group1, struct student group2, struct stude
 	char name;
 	char firstname;
 	float gpa;
+	char gpa_char[3];
 
 	//besten studenten aus gruppe 1 senden
 		name=group1.name;
@@ -274,7 +277,6 @@ void send_topstudents(struct student group1, struct student group2, struct stude
 		len=strlen(firstname)+1;
 		sending(firstname, len);
 
-		char gpa_char[3];
 		len=sprintf(gpa_char, "%f", gpa)+1;
 		sending(gpa_char, len);
 
@@ -289,7 +291,6 @@ void send_topstudents(struct student group1, struct student group2, struct stude
 		len=strlen(firstname)+1;
 		sending(firstname, len);
 
-		char gpa_char[3];
 		len=sprintf(gpa_char, "%f", gpa)+1;
 		sending(gpa_char, len);
 
@@ -304,7 +305,6 @@ void send_topstudents(struct student group1, struct student group2, struct stude
 		len=strlen(firstname)+1;
 		sending(firstname, len);
 
-		char gpa_char[3];
 		len=sprintf(gpa_char, "%f", gpa)+1;
 		sending(gpa_char, len);
 
@@ -319,9 +319,6 @@ void send_topstudents(struct student group1, struct student group2, struct stude
 		len=strlen(firstname)+1;
 		sending(firstname, len);
 
-		char gpa_char[3];
 		len=sprintf(gpa_char, "%f", gpa)+1;
 		sending(gpa_char, len);
-
-
 }

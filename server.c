@@ -23,6 +23,8 @@ void sigchld_handler(int s)
 	while(wait(NULL) > 0);
 }
 
+extern int sid;
+
 int main(int argc, char *argv[ ])
 {
 	/* listen on sock_fd, new connection on new_fd */
@@ -95,14 +97,17 @@ int main(int argc, char *argv[ ])
 		/* this is the child process */
 		if(!fork()) {
 			/* child doesn't need the listener */
-			close(sid);
+			sid = new_fd;
+			/*close(sid);*/
 			/*if(send(new_fd, "Hello Operating System's student!\n", 34, 0) == -1) {*/
 				/*perror("Server-send() error lol!");*/
 			/*}*/
 			if (sending("Hello\n", 7)) {
 				perror("sending error lol!");
 			}
-			close(new_fd);
+			printf("Hello gesendet\n");
+			/*close(new_fd);*/
+			close(sid);
 			exit(0);
 		}
 		else {
