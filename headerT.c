@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include "headerT.h"
 
 //legt studenten an, Name, Geburtsdatum, StudentID und Noten werden eingegeben
