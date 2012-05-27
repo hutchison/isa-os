@@ -27,7 +27,31 @@ void sigchld_handler(int s)
 extern int sid;
 extern int sid_neu;
 
+// unser general purpose buffer: (general purpose *salutier*)
 extern char buf[MAX_SIZE];
+
+int receive_command()
+{
+	// erstmal empfangen wir das "Kommando" vom socket:
+	ssize_t n = recv(sid_neu, &buf, MAX_SIZE, 0);
+	// und dann werten wir den Inhalt aus ...
+	// ist überhaupt was angekommen?
+	if (n < 0) {
+		// falls nicht:
+		return 1;
+	} else { // es ist was angekommen
+		// nur was?
+		if (strcmp(buf, "test\n") == 0) {
+			// zu Testzwecken geben wir ein paar Infos raus:
+			char text[100];
+			sprintf(text, "Hello Operating Systems student! This is PID %d on Socket %d talking.\n", getpid(), sid_neu);
+			sending(text, strlen(text));
+		} else if (strcmp(buf, "create\n")) == 0 {
+			
+		}
+	}
+	return 0;
+}
 
 int main(int argc, char *argv[ ])
 {
@@ -117,15 +141,9 @@ int main(int argc, char *argv[ ])
 			// child doesn't need the listener:
 			close(sid);
 
-			ssize_t n = recv(sid_neu, &buf, MAX_SIZE, 0);
-			printf("Empfing %d Bytes in: %s\n", n, buf);
-
-			// Sende Hello ... mit aktueller PID
-			char text[100];
-			sprintf(text, "Hello Operating Systems student! This is PID %d talking.\n", getpid());
-			int len = strlen(text);
-
-			sending(text, len);
+			if (receive_command()) {
+				perror("Server-child: receive_command error lol!");
+			}
 
 			close(sid_neu);
 			exit(0);
