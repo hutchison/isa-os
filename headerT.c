@@ -145,18 +145,10 @@ void receive_student_course_marks (struct student *s) {
 	}
 }
 
-/*
 void receive_student_program(struct student *s) {
-	int j=0;
 	int e = receive(buf, MAX_PRO);
-	strcpy(g->groupname, buf);
-	while (strcmp(g->student[j].name, "") == 0) {
-		j++;
-	}
-	g->student[j] = *s;
-	strcpy(s->program,g->groupname);
+	strcpy(s->program, buf);
 }
-*/
 
 //ordnet den übermittelten Studenten einer gruppe zu
 //eingegeben wird der aktuelle student - muss in der main funktion direkt nach dem receive der ganzen daten erfolgen
