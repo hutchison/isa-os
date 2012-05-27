@@ -49,7 +49,7 @@ int receive_command()
 			sprintf(text, "Hello Operating Systems student! This is PID %d on Socket %d talking.\n", getpid(), sid_neu);
 			sending(text, strlen(text));
 		} else if (strcmp(buf, "create\n") == 0) {
-			
+			receive_student();
 		}
 	}
 	return 0;

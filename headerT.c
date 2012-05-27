@@ -75,22 +75,12 @@ int sending(const char *buf,int len) {
 //die zu empfangenden daten sind im *buf
 //ruft die socketfunktion recv auf
 int receive(const char *buf, int len) { //funktionsweise wie sending
-	int x,y;
-	x = recv(sid, buf, len, 0);
+	int x, y;
+	x = recv(sid_neu, buf, len, 0);
 
-	if (x==-1) {
+	if (x < 0) {
 		printf("Die Daten konnten nicht empfangen werden");
-		return x;
-	}
-	while (x<len) {
-		printf("Die Daten wurden nicht vollständig empfangen");
-		y = recv(sid, buf[x], len-x, 0);
-		x = x + y;
-
-		if(y==-1) {
-			printf("Die Daten konnten nicht empfangen werden");
-			return y;
-		}
+		return 0;
 	}
 	return 1;
 }
@@ -157,14 +147,8 @@ void receive_student_course_marks (struct student *s) {
 }
 
 void receive_student_program(struct student *s) {
-	int j=0;
 	int e = receive(buf, MAX_PRO);
-	strcpy(g->groupname, buf);
-	while (strcmp(g->student[j].name, "") == 0) {
-		j++;
-	}
-	g->student[j] = *s;
-	strcpy(s->program,g->groupname);
+	strcpy(s->program, buf);
 }
 
 //ordnet den übermittelten Studenten einer gruppe zu
