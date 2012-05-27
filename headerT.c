@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 #include "headerT.h"
 
 extern int sid;
+extern int sid_neu;
 
 //legt studenten an, Name, Geburtsdatum, StudentID und Noten werden eingegeben
 //bei return ist der Student an den server gesendet
@@ -29,26 +31,31 @@ void send_student_id(int student_id) {
 	sending(st_id, len);
 }
 void send_student_course_marks(int c_ms[]) {
-	char all_marks[300]; //100 noten max in einem studiengang möglich, gespeichert als zahl aus zwei ziffern, leerzeichen dazwischen
+	// 100 noten max in einem studiengang möglich,
+	// gespeichert als zahl aus zwei ziffern, leerzeichen dazwischen
+	char all_marks[300]; 
 	int j=0;
-	while (c_ms[j]>0 && j<MAX_MARK) { //ende der notenliste durch negative zahl
-		sprintf(all_marks[j*3], "%d", c_ms[j]);	//die schleife speichert die liste der noten in einem char
+	while (c_ms[j]>0 && j<MAX_MARK) {
+	//ende der notenliste durch negative zahl
+		//die schleife speichert die notenliste in einem char:
+		sprintf(all_marks[j*3], "%d", c_ms[j]);
 		all_marks[(j+1) * 3 - 1] = ' ';
 		j++;
 	}
 	all_marks[j*3-1]= '\0';
 	int len=strlen(all_marks)+1;
-	sending(c_ms, len);
+	sending(all_marks, len);
 }
 //sendet Daten zwischen client und server
 //die zu sendenden Daten sind im *buf
 //len ist die Länge des bufs
 //send ruft die Socketfunktion Send auf
-//bei return 0 sind die Daten nicht korrekt gesendet worden, bei return 1 wurden sie gesendet
+//bei return 0 sind die Daten nicht korrekt gesendet worden, bei return
+//1 wurden sie gesendet
 int sending(const char *buf,int len) {
 	int x,y;
 	//send gibt die menge der gesendeten daten zurück:
-	x = send(sid, buf, len, 0);
+	x = send(sid_neu, buf, len, 0);
 	if (x==-1) { //-1 ist rückgabewert bei fehler
 		return 0;
 	}

@@ -23,12 +23,14 @@ void sigchld_handler(int s)
 	while(wait(NULL) > 0);
 }
 
+/* listen on sid, new connection on sid_neu*/
 extern int sid;
+extern int sid_neu;
+
+extern char buf[MAX_SIZE];
 
 int main(int argc, char *argv[ ])
 {
-	/* listen on sock_fd, new connection on new_fd */
-	int new_fd;
 	/* my address information */
 	struct sockaddr_in my_addr;
 	/* connectors address information */
@@ -41,14 +43,20 @@ int main(int argc, char *argv[ ])
 		exit(1);
 	}
 	else {
-		printf("Server-socket() sid is OK...\n");
+		printf("Server: socket() sid is OK\n");
 	}
-	if (setsockopt(sid, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1) {
+	if (setsockopt(
+				sid,
+				SOL_SOCKET,
+				SO_REUSEADDR,
+				&yes,
+				sizeof(int)
+			) == -1) {
 		perror("Server-setsockopt() error lol!");
 		exit(1);
 	}
 	else {
-		printf("Server-setsockopt is OK...\n");
+		printf("Server: setsockopt is OK\n");
 	}
 	/* host byte order */
 	my_addr.sin_family = AF_INET;
@@ -56,21 +64,27 @@ int main(int argc, char *argv[ ])
 	my_addr.sin_port = htons(MYPORT);
 	/* automatically fill with my IP */
 	my_addr.sin_addr.s_addr = INADDR_ANY;
-	printf("Server-Using %s and port %d...\n", inet_ntoa(my_addr.sin_addr), MYPORT);
+	printf("Server: Using %s and port %d...\n",
+			inet_ntoa(my_addr.sin_addr), MYPORT);
 	/* zero the rest of the struct */
 	memset(&(my_addr.sin_zero), '\0', 8);
-	if(bind(sid, (struct sockaddr *)&my_addr, sizeof(struct sockaddr)) == -1) {
-		perror("Server-bind() error lol!");
+	if(bind(
+				sid,
+				(struct sockaddr *) &my_addr,
+				sizeof(struct sockaddr)
+			) == -1) {
+		perror("Server: bind() error lol!");
 		exit(1);
 	}
 	else {
-		printf("Server-bind() is OK...\n");
+		printf("Server: bind() is OK\n");
 	}
 	if(listen(sid, BACKLOG) == -1) {
-		perror("Server-listen() error");
+		perror("Server: listen() error");
 		exit(1);
 	}
-	printf("Server-listen() is OK...Listening...\n");
+	printf("Server: listen() is OK\n");
+	printf("Listening on socket %d\n", sid);
 	/* clean all the dead processes */
 	sa.sa_handler = sigchld_handler;
 	sigemptyset(&sa.sa_mask);
@@ -80,41 +94,48 @@ int main(int argc, char *argv[ ])
 		exit(1);
 	}
 	else {
-		printf("Server-sigaction() is OK...\n");
+		printf("Server: sigaction() is OK\n");
 	}
 	/* accept() loop */
 	while(1) {
 		sin_size = sizeof(struct sockaddr_in);
-		if((new_fd = accept(sid, (struct sockaddr *)&their_addr, &sin_size)) == -1) {
+		if((sid_neu = accept(sid,
+				(struct sockaddr *) &their_addr,
+				&sin_size)) == -1) {
 			perror("Server-accept() error lol!");
 			continue;
 		}
 		else {
 			printf("Server-accept() is OK...\n");
 		}
-		printf("Server-new socket, new_fd is OK...\n");
-		printf("Server: Got connection from %s\n", inet_ntoa(their_addr.sin_addr));
-		/* this is the child process */
+		printf("Server: new socket sid_neu == %d\n", sid_neu);
+		printf("Server: Got connection from %s\n",
+				inet_ntoa(their_addr.sin_addr));
 		if(!fork()) {
-			/* child doesn't need the listener */
-			sid = new_fd;
-			/*close(sid);*/
-			/*if(send(new_fd, "Hello Operating System's student!\n", 34, 0) == -1) {*/
-				/*perror("Server-send() error lol!");*/
-			/*}*/
-			if (sending("Hello\n", 7)) {
-				perror("sending error lol!");
-			}
-			printf("Hello gesendet\n");
-			/*close(new_fd);*/
+			/* this is the child process */
+
+			// child doesn't need the listener:
 			close(sid);
+
+			ssize_t n = recv(sid_neu, &buf, MAX_SIZE, 0);
+			printf("Empfing %d Bytes in: %s\n", n, buf);
+
+			// Sende Hello ... mit aktueller PID
+			char text[100];
+			sprintf(text, "Hello Operating Systems student! This is PID %d talking.\n", getpid());
+			int len = strlen(text);
+
+			sending(text, len);
+
+			close(sid_neu);
 			exit(0);
 		}
 		else {
-			printf("Server-send is OK...!\n");
+			/* this is the parent process */
+			printf("Server: send is OK\n");
 			/* parent doesn't need this */
-			close(new_fd);
-			printf("Server-new socket, new_fd closed successfully...\n");
+			close(sid_neu);
+			printf("Server: new socket, sid_neu closed\n");
 		}
 	}
 	return 0;

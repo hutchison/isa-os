@@ -10,7 +10,7 @@
 #define MAX_DAT 10
 #define MAX_PRO 5
 
-int sid;
+int sid, sid_neu;
 char buf[MAX_SIZE];
 
 struct student {
@@ -50,5 +50,6 @@ void send_topstudents(struct student group1, struct student group2, struct stude
 int match_to_group(struct student *st);
 //struct student get_best_group_gpa (struct group group);
 struct student get_best_at_all (struct student student1, struct student student2, struct student student3);
+void send_hello();
 
 #endif
