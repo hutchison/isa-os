@@ -101,7 +101,7 @@ void receive_student() {
 	receive_student_dateofbirth(st);
 	receive_student_id(st);
 	receive_student_course_marks(st);
-	recevie_student_program(st);
+	receive_student_program(st);
 	match_to_group(st);
 }
 
