@@ -8,30 +8,30 @@ extern int sid_neu;
 
 //legt studenten an, Name, Geburtsdatum, StudentID und Noten werden eingegeben
 //bei return ist der Student an den server gesendet
-//sendet den übergebenen namen des studenten an server
+//sendet den Ã¼bergebenen namen des studenten an server
 //im main programm muss dann gleich die receive_student_name funktion aufgerufen werden
 void send_student_name(char *name) {
 	int len=strlen(name)+1;
 	sending(name, len);
 }
-//sendet den übergebenen vornamen des studenten an den server - zugehörige receive fkt aufrufen
+//sendet den Ã¼bergebenen vornamen des studenten an den server - zugehÃ¶rige receive fkt aufrufen
 void send_student_firstname(char *firstname) {
 	int len=strlen(firstname)+1;
 	sending(firstname, len);
 }
-//sendet übergebenes gebdatum an server - zugehörige receive fkt aufrufen
+//sendet Ã¼bergebenes gebdatum an server - zugehÃ¶rige receive fkt aufrufen
 void send_student_dateofbirth(char *dateofbirth) {
 	int len=strlen(dateofbirth)+1;
 	sending(dateofbirth, len);
 }
-//sendet übergebene id an server - zugehörige receive fkt aufrufen
+//sendet Ã¼bergebene id an server - zugehÃ¶rige receive fkt aufrufen
 void send_student_id(int student_id) {
 	char st_id[15];
 	int len=sprintf(st_id, "%d", student_id)+1;
 	sending(st_id, len);
 }
 void send_student_course_marks(int c_ms[]) {
-	// 100 noten max in einem studiengang möglich,
+	// 100 noten max in einem studiengang mÃ¶glich,
 	// gespeichert als zahl aus zwei ziffern, leerzeichen dazwischen
 	char all_marks[300]; 
 	int j=0;
@@ -48,15 +48,15 @@ void send_student_course_marks(int c_ms[]) {
 }
 //sendet Daten zwischen client und server
 //die zu sendenden Daten sind im *buf
-//len ist die Länge des bufs
+//len ist die LÃ¤nge des bufs
 //send ruft die Socketfunktion Send auf
 //bei return 0 sind die Daten nicht korrekt gesendet worden, bei return
 //1 wurden sie gesendet
 int sending(const char *buf,int len) {
 	int x,y;
-	//send gibt die menge der gesendeten daten zurück:
+	//send gibt die menge der gesendeten daten zurÃ¼ck:
 	x = send(sid_neu, buf, len, 0);
-	if (x==-1) { //-1 ist rückgabewert bei fehler
+	if (x==-1) { //-1 ist rÃ¼ckgabewert bei fehler
 		return 0;
 	}
 	while (x<len) { //bei x<len wurden nicht alle datenn gesendet
@@ -69,7 +69,7 @@ int sending(const char *buf,int len) {
 	}
 	return 1;
 }
-//empfängt Daten auf server bzw client
+//empfÃ¤ngt Daten auf server bzw client
 //die zu empfangenden daten sind im *buf
 //ruft die socketfunktion recv auf
 int receive(const char *buf, int len) { //funktionsweise wie sending
@@ -81,7 +81,7 @@ int receive(const char *buf, int len) { //funktionsweise wie sending
 		return x;
 	}
 	while (x<len) {
-		printf("Die Daten wurden nicht vollständig empfangen");
+		printf("Die Daten wurden nicht vollstÃ¤ndig empfangen");
 		y = recv(sid, buf[x], len-x, 0);
 		x = x + y;
 
@@ -93,11 +93,11 @@ int receive(const char *buf, int len) { //funktionsweise wie sending
 	return 1;
 }
 
-//es folgen die zugehörigen receive funktionen zu den gesendeten daten
-//dafür muss ein pointer auf einen in der main fkt angelegten studenten übergeben werden gegebenenfalls auch einer auf eine gruppe
+//es folgen die zugehÃ¶rigen receive funktionen zu den gesendeten daten
+//dafÃ¼r muss ein pointer auf einen in der main fkt angelegten studenten Ã¼bergeben werden gegebenenfalls auch einer auf eine gruppe
 //der verwendete buf ist ebenfalls in der main fkt anzulegen und mit ausreichend speicher zu versehen
-//die receive funktionen für namen und vornamen  bzw für dateofbirth und id sind an sich gleich, wegen der
-//übersicht in der main fkt habe ich aber für jedes receive extra eine fkt zu schreiben statt receive_string
+//die receive funktionen fÃ¼r namen und vornamen  bzw fÃ¼r dateofbirth und id sind an sich gleich, wegen der
+//Ã¼bersicht in der main fkt habe ich aber fÃ¼r jedes receive extra eine fkt zu schreiben statt receive_string
 //beispielsweise
 void receive_student_name(struct student *s) {
 	int e = receive(buf, MAX_NAME);
@@ -133,7 +133,7 @@ void receive_student_course_marks (struct student *s) {
 			gpa=gpa+s->course_marks[i];
 		}
 		gpa=(gpa/i)/10;
-		s->gpa=gpa; //nachkommastellen evtl noch verändern - jetzt ist es ein float mit xx nachkommastellen
+		s->gpa=gpa; //nachkommastellen evtl noch verÃ¤ndern - jetzt ist es ein float mit xx nachkommastellen
 		if (i<MAX_MARK) {
 			s->course_marks[i]=-1;
 		}
@@ -151,9 +151,9 @@ void receive_student_program(struct group *g, struct student *s) {
 	strcpy(s->program,g->groupname);
 }
 
-//ordnet den übermittelten Studenten einer gruppe zu
+//ordnet den Ã¼bermittelten Studenten einer gruppe zu
 //eingegeben wird der aktuelle student - muss in der main funktion direkt nach dem receive der ganzen daten erfolgen
-//bei return 0 wurde der student in die zugehörige gruppendatei gelesen
+//bei return 0 wurde der student in die zugehÃ¶rige gruppendatei gelesen
 //bei return 1 gab es keine passende gruppe (wir haben ja nur 3: ITTI, INFO, MATH)
 int match_to_group(struct student *st) {
 	char n[MAX_NAME];
@@ -201,7 +201,7 @@ void request_top() {
 	return;
 }
 
-//empfängt anfrage nach topstudenten auf dem server
+//empfÃ¤ngt anfrage nach topstudenten auf dem server
 //ACHTUNG: in der main funktion muss wirklich "anfrage" gesendet werden als char
 /*
 void work_request_top() {
@@ -222,7 +222,7 @@ void work_request_top() {
 */
 
 //sucht den besten einer gruppe raus
-//muss in der mainfunktion gespeichert werden und dann an die send_topstudents funktion übergeben werden
+//muss in der mainfunktion gespeichert werden und dann an die send_topstudents funktion Ã¼bergeben werden
 struct student get_best_group_gpa(struct group group) {
 	int k;
 	float x;
@@ -245,7 +245,7 @@ struct student get_best_group_gpa(struct group group) {
 }
 
 //findet den besten studenten aller gruppen
-//gibt diesen aus - muss in der mainfunktion gespeichert werden und dann an die send_topstudents funktion übergeben werden
+//gibt diesen aus - muss in der mainfunktion gespeichert werden und dann an die send_topstudents funktion Ã¼bergeben werden
 struct student get_best_at_all(struct student st1, struct student st2, struct student st3) {
 	float x;
 	float y;
