@@ -27,7 +27,7 @@ struct group {
 	char groupname[MAX_NAME];
 	struct student student[10];
 	struct group *group;
-};
+} g_info, g_itti, g_math;
 
 //funktion zum senden der daten zwischen server und client:
 int sending(const char *buf,int len);

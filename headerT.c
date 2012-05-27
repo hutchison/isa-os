@@ -6,6 +6,8 @@
 extern int sid;
 extern int sid_neu;
 
+extern struct group g_info, g_itti, g_math;
+
 //legt studenten an, Name, Geburtsdatum, StudentID und Noten werden eingegeben
 //bei return ist der Student an den server gesendet
 //sendet den übergebenen namen des studenten an server
