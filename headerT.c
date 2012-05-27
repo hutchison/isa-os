@@ -218,7 +218,6 @@ void request_top() {
 
 //empfängt anfrage nach topstudenten auf dem server
 //ACHTUNG: in der main funktion muss wirklich "anfrage" gesendet werden als char
-/*
 void work_request_top() {
 	char anfrage[MAX_SIZE];
 	receive(anfrage,MAX_SIZE);
@@ -227,14 +226,14 @@ void work_request_top() {
 		struct student s2;
 		struct student s3;
 		struct student best;
-		s1=get_best_group_gpa(gruppe1);
-		s2=get_best_group_gpa(gruppe2);
-		s3=get_best_group_gpa(gruppe3);
+		s1=get_best_group_gpa(g_itti);
+		s2=get_best_group_gpa(g_info);
+		s3=get_best_group_gpa(g_math);
 		best=get_best_at_all(s1, s2, s3);
-		send_topstudents(s1);
+		send_topstudents(s1, s2, s3, best);
 	}
 }
-*/
+
 
 //sucht den besten einer gruppe raus
 //muss in der mainfunktion gespeichert werden und dann an die send_topstudents funktion übergeben werden
@@ -282,65 +281,139 @@ struct student get_best_at_all(struct student st1, struct student st2, struct st
 
 //sendet topstudenten und den gesamtbesten an client
 void send_topstudents(struct student group1, struct student group2, struct student group3, struct student at_all) {
-	int i,len;
+	int i, len, id;
 	char name;
 	char firstname;
+	char dateofbirth;
 	float gpa;
 	char gpa_char[3];
+	char all_marks[300]; 
+	char st_id[15];
+	int j=0;
 
 	//besten studenten aus gruppe 1 senden
-		name=group1.name;
-		firstname=group1.firstname;
+		strcpy(name, group1.name);
+		strcpy(firstname, group1.firstname);
+		strcpy(dateofbirth, group1.dateofbirth);
+		id=group1.student_id;
 		gpa=group1.gpa;
-
+		while (group1.course_marks[j]>0 && j<MAX_MARK) {
+			sprintf(all_marks[j*3], "%d", group1.course_marks[j]);
+			all_marks[(j+1) * 3 - 1] = ' ';
+			j++;
+		}
+		all_marks[j*3-1]= '\0';
+		
 		len=strlen(name)+1;
 		sending(name, len);
 
 		len=strlen(firstname)+1;
 		sending(firstname, len);
+		
+		len=strlen(dateofbirth)+1;
+		sending(dateofbirth, len);
+
+		len=sprintf(st_id, "%d", id)+1;
+		sending(st_id, len);
 
 		len=sprintf(gpa_char, "%f", gpa)+1;
 		sending(gpa_char, len);
+	
+		len=strlen(all_marks)+1;
+		sending(all_marks, len);
 
 	//besten studenten aus gruppe 2 senden
-		name=group2.name;
-		firstname=group2.firstname;
+		strcpy(name, group2.name);
+		strcpy(firstname, group2.firstname);
+		strcpy(dateofbirth, group2.dateofbirth);
+		id=group2.student_id;
 		gpa=group2.gpa;
-
+		j=0;
+		while (group2.course_marks[j]>0 && j<MAX_MARK) {
+			sprintf(all_marks[j*3], "%d", group2.course_marks[j]);
+			all_marks[(j+1) * 3 - 1] = ' ';
+			j++;
+		}
+		all_marks[j*3-1]= '\0';
+		
 		len=strlen(name)+1;
 		sending(name, len);
 
 		len=strlen(firstname)+1;
 		sending(firstname, len);
+		
+		len=strlen(dateofbirth)+1;
+		sending(dateofbirth, len);
+
+		len=sprintf(st_id, "%d", id)+1;
+		sending(st_id, len);
 
 		len=sprintf(gpa_char, "%f", gpa)+1;
 		sending(gpa_char, len);
-
+	
+		len=strlen(all_marks)+1;
+		sending(all_marks, len);
 	//besten studenten aus gruppe 3 senden
-		name=group3.name;
-		firstname=group3.firstname;
+		strcpy(name, group3.name);
+		strcpy(firstname, group3.firstname);
+		strcpy(dateofbirth, group3.dateofbirth);
+		id=group3.student_id;
 		gpa=group3.gpa;
-
+		j=0;
+		while (group3.course_marks[j]>0 && j<MAX_MARK) {
+			sprintf(all_marks[j*3], "%d", group3.course_marks[j]);
+			all_marks[(j+1) * 3 - 1] = ' ';
+			j++;
+		}
+		all_marks[j*3-1]= '\0';
+		
 		len=strlen(name)+1;
 		sending(name, len);
 
 		len=strlen(firstname)+1;
 		sending(firstname, len);
+		
+		len=strlen(dateofbirth)+1;
+		sending(dateofbirth, len);
+
+		len=sprintf(st_id, "%d", id)+1;
+		sending(st_id, len);
 
 		len=sprintf(gpa_char, "%f", gpa)+1;
 		sending(gpa_char, len);
+	
+		len=strlen(all_marks)+1;
+		sending(all_marks, len);
 
 	//besten studenten von allen senden
-		name=at_all.name;
-		firstname=at_all.firstname;
+		strcpy(name, at_all.name);
+		strcpy(firstname, at_all.firstname);
+		strcpy(dateofbirth, at_all.dateofbirth);
+		id=at_all.student_id;
 		gpa=at_all.gpa;
-
+		j=0;
+		while (at_all.course_marks[j]>0 && j<MAX_MARK) {
+			sprintf(all_marks[j*3], "%d", at_all.course_marks[j]);
+			all_marks[(j+1) * 3 - 1] = ' ';
+			j++;
+		}
+		all_marks[j*3-1]= '\0';
+		
 		len=strlen(name)+1;
 		sending(name, len);
 
 		len=strlen(firstname)+1;
 		sending(firstname, len);
+		
+		len=strlen(dateofbirth)+1;
+		sending(dateofbirth, len);
+
+		len=sprintf(st_id, "%d", id)+1;
+		sending(st_id, len);
 
 		len=sprintf(gpa_char, "%f", gpa)+1;
 		sending(gpa_char, len);
+	
+		len=strlen(all_marks)+1;
+		sending(all_marks, len);
 }
