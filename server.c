@@ -44,6 +44,7 @@ int receive_command()
 	} else { // es ist was angekommen
 		// nur was?
 		if (strcmp(buf, "test\n") == 0) {
+			printf("test empfangen!\n");
 			// zu Testzwecken geben wir ein paar Infos raus:
 			char text[100];
 			sprintf(text, "Hello Operating Systems student! This is PID %d on Socket %d talking.\n", getpid(), sid_neu);
@@ -52,6 +53,9 @@ int receive_command()
 			receive_student();
 		} else if (strcmp(buf, "auth\n") == 0) {
 			auth_user();
+			return 0;
+		} else if (strcmp(buf, "\n") == 0 ) {
+			return 0;
 		}
 	}
 	return 0;
@@ -136,7 +140,7 @@ int main(int argc, char *argv[ ])
 		else {
 			printf("Server-accept() is OK...\n");
 		}
-		printf("Server: new socket sid_neu == %d\n", sid_neu);
+		printf("Server: sid_neu: %d\n", sid_neu);
 		printf("Server: Got connection from %s\n",
 				inet_ntoa(their_addr.sin_addr));
 		if(!fork()) {
@@ -145,8 +149,10 @@ int main(int argc, char *argv[ ])
 			// child doesn't need the listener:
 			close(sid);
 
-			if (receive_command()) {
-				perror("Server-child: receive_command error lol!");
+			while (1) {
+				if (receive_command()) {
+					perror("Server-child: receive_command error lol!");
+				}
 			}
 
 			close(sid_neu);

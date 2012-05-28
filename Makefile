@@ -10,5 +10,7 @@ server: server.c $(HEADER)
 	$(CC) $(CFLAGS) -c headerT.c
 	$(CC) server.o headerT.o -o server
 
-client: client.c
-	$(CC) $(CFLAGS) client.c -o client
+client: client.c $(HEADER)
+	$(CC) $(CFLAGS) -c client.c
+	$(CC) $(CFLAGS) -c headerT.c
+	$(CC) $(CFLAGS) client.o headerT.o -o client

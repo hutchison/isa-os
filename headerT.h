@@ -55,5 +55,6 @@ int match_to_group(struct student *st);
 struct student get_best_group_gpa(struct group group);
 struct student get_best_at_all (struct student student1, struct student student2, struct student student3);
 void auth_user();
+void remove_newline(char * s);
 
 #endif

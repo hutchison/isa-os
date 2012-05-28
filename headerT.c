@@ -7,7 +7,11 @@
 extern int sid;
 extern int sid_neu;
 
+extern char buf[MAX_SIZE];
+
 extern struct group g_info, g_itti, g_math;
+
+extern int god_mode;
 
 void remove_newline(char * s)
 /* entfernt den hintersten Zeilenumbruch */
@@ -30,26 +34,37 @@ void auth_user()
  * 4. Client sendet das Passwort
  * 5. Server überprüft Passwort
  * 6. stimmt beides, setzt der Server den god mode :)
- */ 
+ */
 {
 	char admin_name[] = "admin";
-	char admin_pw[] = "ponytime";
+	char admin_pw[] = "pony";
 	char user_buf[MAX_USERNAME], pw_buf[_PASSWORD_LEN];
 	int user_ok = 0, pw_ok = 0;
 	if (receive(user_buf, MAX_USERNAME)) { // 2.
+		remove_newline(user_buf);
+		printf("bekam: %s\n", user_buf);
 		if (!strcmp(admin_name, user_buf)) { // 3.
 			user_ok = 1;
 		}
 	}
 	if (receive(pw_buf, _PASSWORD_LEN)) { // 4.
+		printf("bekam: %s\n", pw_buf);
 		if (!strcmp(admin_pw, pw_buf)) { // 5.
 			pw_ok = 1;
 		}
 	}
 	if (user_ok && pw_ok) { // 6.
 		god_mode = 1;
-		printf("god mode granted.\n");
+		strcpy(buf, "god mode granted.\n");
+		sending(buf, strlen(buf));
+	} else {
+		strcpy(buf, "hipster mode granted.\n");
+		sending(buf, strlen(buf));
+
+		close(sid_neu);
+		exit(0);
 	}
+	return;
 }
 
 //legt studenten an, Name, Geburtsdatum, StudentID und Noten werden eingegeben
@@ -102,16 +117,8 @@ int sending(const char *buf,int len) {
 	int x,y;
 	//send gibt die menge der gesendeten daten zurück:
 	x = send(sid_neu, buf, len, 0);
-	if (x==-1) { //-1 ist rückgabewert bei fehler
+	if (x < 0) { //-1 ist rückgabewert bei fehler
 		return 0;
-	}
-	while (x<len) { //bei x<len wurden nicht alle daten gesendet
-		//neuer sendeversuch ab dem fehler:
-		y=send(sid, buf[x], len-x, 0);
-		x=x+y;
-		if (y==-1) { //erneutes testen auf fehler
-			return 0;
-		}
 	}
 	return 1;
 }
@@ -123,8 +130,7 @@ int receive(const char *buf, int len) { //funktionsweise wie sending
 	x = recv(sid_neu, buf, len, 0);
 
 	if (x < 0) {
-		printf("Die Daten konnten nicht empfangen werden");
-		return 0;
+		perror("Daten konnten von receive() nicht empfangen werden");
 	}
 	return 1;
 }
@@ -138,7 +144,7 @@ int receive(const char *buf, int len) { //funktionsweise wie sending
 
 void receive_student() {
 	struct student *st;
-	st=(struct student *)malloc(sizeof(struct student));
+	st = (struct student *) malloc(sizeof(struct student));
 	bzero(buf, MAX_SIZE);
 	char msg[30];
 	strcpy(msg, "Name: "); sending(msg, strlen(msg));
